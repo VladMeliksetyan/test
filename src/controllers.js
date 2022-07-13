@@ -1,34 +1,40 @@
-const { Client } = require("pg");
-const client = new Client({
-  user: "postgres",
-  host: "localhost",
-  database: "testdb",
-  password: "099995457",
-  port: 5432,
-});
+const pool = require("/home/vladimir/Desktop/CRUD/src/db.js");
+const queries = require("/home/vladimir/Desktop/CRUD/src/queries.js");
+const { uuid } = require("uuidv4");
 
-client.connect();
-const getAllUsers = () =>{
-    `SELECT * FROM users`,
-    (err, res) => {
-      if (err) {
-        console.log(err.stack);
-      } else {
-        console.log(res.rows[0]);
-      }
-    }
-}
-const addData = (id,name) => {
-  client.query(
-    `INSERT INTO users (id,name) VALUES (${id},'${name}')`,
-    (err, res) => {
-      if (err) {
-        console.log(err.stack);
-      } else {
-        console.log(res.rows[0]);
-      }
-    }
-  );
+const getUsers = (req, res) => {
+  pool.query(queries.getAllUsers, (error, result) => {
+    if (error) throw error;
+    res.status(200).send(result.rows);
+  });
 };
 
-module.exports = {addData,getAllUsers}
+const getUSerById = (req, res) => {
+  const id = req.params.id;
+  pool.query(queries.getUSerById, [id], (error, result) => {
+    if (error) throw error;
+    res.status(200).json(result.rows);
+  });
+};
+
+const addUser = (req, res) => {
+  const { name } = req.body;
+  id = uuid();
+  pool.query(queries.addUser, [id, name], (error, result) => {
+    if (error) throw error;
+    res.status(201).send("User creatred succsessfuly");
+  });
+};
+
+const deleteUser = (req, res) => {
+  const id = req.params.id;
+  pool.query(queries.deleteUser, [id], (error, result) => {
+    res.send("user deleted!!");
+  });
+};
+module.exports = {
+  getUsers,
+  getUSerById,
+  addUser,
+  deleteUser,
+};

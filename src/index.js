@@ -1,10 +1,8 @@
 const express = require("express");
+const userRoutes = require("/home/vladimir/Desktop/CRUD/src/routes.js");
 const app = express();
-require("/home/vladimir/Desktop/CRUD/src/routes.js")(app);
-const PORT = 3001;
-
+const port = 3000;
 
 app.use(express.json());
-app.listen(PORT, () =>
-  console.log(`App is running on http//:localhost:${PORT}`)
-);
+app.use(userRoutes);
+app.listen(port, () => console.log(`app listening on port ${port}`));
