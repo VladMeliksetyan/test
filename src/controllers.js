@@ -1,5 +1,5 @@
-const pool = require("/home/vladimir/Desktop/CRUD/src/db.js");
-const queries = require("/home/vladimir/Desktop/CRUD/src/queries.js");
+const pool = require("./db");
+const queries = require("./queries");
 const { uuid } = require("uuidv4");
 
 const getUsers = (req, res) => {
