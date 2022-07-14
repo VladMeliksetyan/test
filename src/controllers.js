@@ -8,9 +8,8 @@ const registerUser = async (req, res) => {
   let { name, email, password } = req.body;
   const id = uuid();
   const hashedPassword = await bcrypt.hash(password, 10);
-  password = hashedPassword;
 
-  pool.query(queries.addUser, [id, name, email, password], (error, result) => {
+  pool.query(queries.addUser, [id, name, email, hashedPassword], (error, result) => {
     if (error) throw error;
     res.status(201).send("User registered succsessfuly");
   });
