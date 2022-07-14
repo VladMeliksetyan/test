@@ -1,12 +1,11 @@
 const { Router } = require("express");
 const controller = require("./controllers");
-const { addUser, deleteUser } = require("./queries");
 
 const app = Router();
 
-app.get("/", controller.getUsers);
-app.get("/:id", controller.getUSerById);
-app.post("/", controller.addUser);
-app.delete("/:id", controller.deleteUser);
+app.get("/register", controller.displayRegisterPage);
+app.post("/register", controller.registerUser);
+app.get("/login", controller.diplayloginUserPage);
+app.post("/login", controller.loginUser);
 
 module.exports = app;

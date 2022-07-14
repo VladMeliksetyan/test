@@ -1,40 +1,48 @@
 const pool = require("./db");
 const queries = require("./queries");
 const { uuid } = require("uuidv4");
+const path = require("path");
+const bcrypt = require("bcrypt");
 
-const getUsers = (req, res) => {
-  pool.query(queries.getAllUsers, (error, result) => {
+const registerUser = async (req, res) => {
+  let { name, email, password } = req.body;
+  const id = uuid();
+  const hashedPassword = await bcrypt.hash(password, 10);
+  password = hashedPassword;
+
+  pool.query(queries.addUser, [id, name, email, password], (error, result) => {
     if (error) throw error;
-    res.status(200).send(result.rows);
+    res.status(201).send("User registered succsessfuly");
   });
 };
 
-const getUSerById = (req, res) => {
-  const id = req.params.id;
-  pool.query(queries.getUSerById, [id], (error, result) => {
-    if (error) throw error;
-    res.status(200).json(result.rows);
-  });
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  let user = await (await pool.query(queries.userLogin, [email])).rows[0];
+
+  if (user) {
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (validPassword) {
+      res.status(200).send("user Successfuly logged in");
+    } else {
+      res.send("wrong password");
+    }
+  } else {
+    res.status(404).send("User does not exist");
+  }
 };
 
-const addUser = (req, res) => {
-  const { name } = req.body;
-  id = uuid();
-  pool.query(queries.addUser, [id, name], (error, result) => {
-    if (error) throw error;
-    res.status(201).send("User creatred succsessfuly");
-  });
+const displayRegisterPage = (req, res) => {
+  res.sendFile(path.resolve("/home/vladimir/Desktop/CRUD/views/register.html"));
 };
 
-const deleteUser = (req, res) => {
-  const id = req.params.id;
-  pool.query(queries.deleteUser, [id], (error, result) => {
-    res.send("user deleted!!");
-  });
+const diplayloginUserPage = (req, res) => {
+  res.sendFile(path.resolve("/home/vladimir/Desktop/CRUD/views/login.html"));
 };
+
 module.exports = {
-  getUsers,
-  getUSerById,
-  addUser,
-  deleteUser,
+  registerUser,
+  loginUser,
+  displayRegisterPage,
+  diplayloginUserPage,
 };
