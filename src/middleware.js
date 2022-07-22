@@ -1,9 +1,8 @@
 const session = require("express-session");
-const { request, response } = require("express");
 
 const sessionMiddleware = (req, res, next) => {
-    console.log(req.session.id);
-  if (req.session.id) return next()
+  console.log("session: ", req.session);
+  if (!req?.session?.cookie.email) return res.status(403).send("Unauthorized")
   session({
     resave: false,
     secret: process.env.SESSION_SECRET,
@@ -11,5 +10,5 @@ const sessionMiddleware = (req, res, next) => {
     saveUninitialized: false,
   });
   next();
-};
+}; 
 module.exports = sessionMiddleware;

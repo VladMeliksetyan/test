@@ -1,26 +1,24 @@
 const { Router } = require("express");
 const {
   registerUser,
-   loginUser,
+  loginUser,
   addTasks,
   displayTasks,
   deleteTask,
   UpdateReminder,
-  userLogOut
+  userLogOut,
 } = require("./controllers");
+const sessionMiddleware = require("./middleware");
 const session = require("./middleware");
-
-
 
 const app = Router();
 
-
- app.post("/register", registerUser);
- app.post("/login", loginUser);
- app.get("/logout", userLogOut);
-app.post("/app",addTasks);
-app.get("/tasks",displayTasks);
-app.delete("/removeTask",deleteTask);
-app.put("/updateReminder",UpdateReminder)
+app.post("/register", registerUser);
+app.post("/login", loginUser);
+app.get("/logout", sessionMiddleware, userLogOut);
+app.post("/app", sessionMiddleware , addTasks);
+app.get("/tasks", sessionMiddleware, displayTasks);
+app.delete("/removeTask", sessionMiddleware, deleteTask);
+app.put("/updateReminder", sessionMiddleware, UpdateReminder);
 
 module.exports = app;

@@ -21,15 +21,13 @@ const registerUser = async (req, res) => {
 };
 
 
-let userId;
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   let user = await (await pool.query(queries.userLogin, [email])).rows[0];
   if (user) {
-    //pool.query(queries.addSessionId, [req.session.id, email]);
+    pool.query(queries.addSessionId, [req.session.id, email]);
     const validPassword = await bcrypt.compare(password, user.password);
     if (validPassword) {
-      userId = user.user_id
       res.status(200).send({ session: req.session.id });
     } else {
       res.send("wrong password");
@@ -42,16 +40,17 @@ const loginUser = async (req, res) => {
 };
 
 const addTasks = async (req, res) => {
+
   const { text, day, reminder } = req.body;
   const task_id = uuid();
   // console.log(req.session.id);
   const user = await (
     await pool.query(queries.findUserBySession, [req.session.id])
   ).rows[0];
-  //console.log(user.user_id);
+  console.log("User ID ",user.user_id);
   pool.query(
     queries.addTasks,
-    [task_id, text, reminder, userId],
+    [task_id, text, reminder, req.session.id],
     (error, result) => {
       if (error) throw error;
       res.status(201).send(result.rows[0]);
@@ -60,15 +59,19 @@ const addTasks = async (req, res) => {
 };
 
 const userLogOut = (req, res) => {
-  userId = undefined;
+  // delete session from users table
   res.status(200).send("ok")
-};
+}; 
 
 const displayTasks = async (req, res) => {
-  const data = await pool.query(queries.displayAllTasks,[userId]);
+  const user = await (
+    await pool.query(queries.findUserBySession, [req.session.id])
+  ).rows[0];
+  console.log("found user:", user);
+  const data = await pool.query(queries.displayAllTasks,[user.user_id]);
   res.send(data.rows);
 };
-
+ 
 const deleteTask = async (req, res) => {
   const { task_id } = req.body;
   try {
